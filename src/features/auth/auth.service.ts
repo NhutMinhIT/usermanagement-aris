@@ -40,6 +40,10 @@ export class AuthService {
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(registerDto.password, saltRounds);
 
+            const checkExistUser = await this.userModel.findOne({ username: registerDto.username }).exec();
+            if (checkExistUser) {
+                throw new UnauthorizedException('Username already exists');
+            }
             const createdUser = new this.userModel({
                 ...registerDto,
                 password: hashedPassword,
