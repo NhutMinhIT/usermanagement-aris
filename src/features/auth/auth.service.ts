@@ -34,7 +34,6 @@ export class AuthService {
             message: 'User logged in successfully',
         };
     }
-
     async register(registerDto: RegisterDto) {
         try {
             const saltRounds = 10;
@@ -56,8 +55,13 @@ export class AuthService {
                 message: 'User registered successfully',
             };
         } catch (error) {
-            console.error('Error during registration:', error);
-            throw new InternalServerErrorException('Registration failed');
+            if (error instanceof UnauthorizedException) {
+                console.error('Registration error: Username already exists');
+                throw error;
+            } else {
+                console.error('Error during registration:', error);
+                throw new InternalServerErrorException('Registration failed');
+            }
         }
     }
 
