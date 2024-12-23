@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { User } from './entities/user.entity';
+import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class UserService {
-    private users: User[] = [];
+    constructor(@InjectModel(User.name) private userModel: Model<User>) { }
 
-    findAll(): User[] {
-        return this.users;
+    async findAll(): Promise<User[]> {
+        return this.userModel.find().exec();
     }
 }
