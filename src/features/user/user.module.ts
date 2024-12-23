@@ -16,7 +16,7 @@ import { JwtStrategy } from '../auth/strategies/jwt.strategy'; // Import JwtStra
             signOptions: { expiresIn: '3h' },
         }),
     ],
-    controllers: [UserController],
+    controllers: [UserController], // Ensure JwtStrategy is not here
     providers: [UserService, JwtStrategy] // Add JwtStrategy to providers
 })
 export class UserModule { }
