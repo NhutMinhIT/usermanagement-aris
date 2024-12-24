@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { User, UserDocument } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 
-interface PaginatedResponse {
+export interface PaginatedResponse {
     data: User[];
     total: number;
     page: number;
@@ -31,6 +31,7 @@ export class UserService {
         // Execute search and pagination in parallel
         const [users, total] = await Promise.all([
             this.userModel.find(query)
+
                 .limit(validLimit)
                 .skip(validLimit * (validPage - 1))
                 .lean()

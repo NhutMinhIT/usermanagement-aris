@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
-import { UserService } from './user.service';
+import { PaginatedResponse, UserService } from './user.service';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -14,7 +14,7 @@ export class UserController {
         @Query('limit') limit: number = 10,
         @Query('page') page: number = 1,
         @Query('search') search: string = ''
-    ) {
+    ): Promise<PaginatedResponse> {
         return this.userService.findAll(limit, page, search);
     }
 
