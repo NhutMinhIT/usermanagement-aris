@@ -15,7 +15,12 @@ interface PaginatedResponse {
 export class UserService {
     constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
 
-    async findAll(limit: number, page: number, search: string): Promise<PaginatedResponse> {
+    async findAll(limit: number = 10, page: number = 1, search: string = ''): Promise<PaginatedResponse> {
+        // Validate input parameters
+        const validLimit = Math.max(1, Math.abs(Number(limit)));
+        const validPage = Math.max(1, Math.abs(Number(page)));
+
+        // Build search query
         const query = search ? {
             $or: [
                 { username: { $regex: search, $options: 'i' } },
@@ -23,20 +28,22 @@ export class UserService {
             ]
         } : {};
 
+        // Execute search and pagination in parallel
         const [users, total] = await Promise.all([
             this.userModel.find(query)
-                .limit(limit)
-                .skip(limit * (page - 1))
+                .limit(validLimit)
+                .skip(validLimit * (validPage - 1))
                 .lean()
                 .exec(),
             this.userModel.countDocuments(query)
         ]);
 
+        // Return paginated response
         return {
             data: users,
             total,
-            page,
-            limit
+            page: validPage,
+            limit: validLimit
         };
     }
 
