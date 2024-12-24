@@ -4,18 +4,40 @@ import { Model } from 'mongoose';
 import { User, UserDocument } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 
+interface PaginatedResponse {
+    data: User[];
+    total: number;
+    page: number;
+    limit: number;
+}
+
 @Injectable()
 export class UserService {
     constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
 
-    async findAll(limit: number, page: number, search: string): Promise<User[]> {
-        const query = search ? { $or: [{ username: { $regex: search, $options: 'i' } }, { email: { $regex: search, $options: 'i' } }] } : {};
-        const users = await this.userModel.find(query)
-            .limit(limit)
-            .skip(limit * (page - 1))
-            .lean() // Convert Mongoose documents to plain JavaScript objects
-            .exec();
-        return users;
+    async findAll(limit: number, page: number, search: string): Promise<PaginatedResponse> {
+        const query = search ? {
+            $or: [
+                { username: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } }
+            ]
+        } : {};
+
+        const [users, total] = await Promise.all([
+            this.userModel.find(query)
+                .limit(limit)
+                .skip(limit * (page - 1))
+                .lean()
+                .exec(),
+            this.userModel.countDocuments(query)
+        ]);
+
+        return {
+            data: users,
+            total,
+            page,
+            limit
+        };
     }
 
     private async checkExisting(username: string, email: string) {
