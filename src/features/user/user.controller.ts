@@ -22,6 +22,13 @@ export class UserController {
         return this.userService.findAll(limit, page, search);
     }
 
+    @Get(':id')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin', 'user')
+    async findOne(@Param('id') id: string) {
+        return this.userService.findById(id);
+    }
+
     @Post()
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles('admin')

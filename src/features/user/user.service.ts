@@ -72,6 +72,18 @@ export class UserService {
         return newUser.save();
     }
 
+    async findById(id: string): Promise<User> {
+        if (!Types.ObjectId.isValid(id)) {
+            throw new BadRequestException('Invalid user ID');
+        }
+
+        const user = await this.userModel.findById(id).lean().exec();
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+        return user;
+    }
+
     async removeById(id: string, currentUserId: string, currentUserRole: string): Promise<boolean> {
         if (!Types.ObjectId.isValid(id)) {
             throw new BadRequestException('Invalid user ID');
