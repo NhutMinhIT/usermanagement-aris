@@ -3,11 +3,9 @@ import { PaginatedResponse, UserService } from './user.service';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
+import { DeleteUserResponse } from 'src/interfaces/remove-user.interface';
 
-export interface DeleteUserResponse {
-    success: boolean;
-    message: string;
-}
+
 @Controller('users')
 export class UserController {
     constructor(private readonly userService: UserService) { }
