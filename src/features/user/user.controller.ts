@@ -1,7 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { PaginatedResponse, UserService } from './user.service';
-import { RolesGuard } from '../auth/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { DeleteUserResponse } from 'src/interfaces/remove-user.interface';
 
@@ -12,6 +13,7 @@ export class UserController {
 
     @Get()
     @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin', 'user')
     async findAll(
         @Query('limit') limit: number = 10,
         @Query('page') page: number = 1,
@@ -22,20 +24,23 @@ export class UserController {
 
     @Post()
     @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     async create(@Body() createUserDto: CreateUserDto) {
         return this.userService.create(createUserDto);
     }
 
     @Delete(':id')
     @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     async remove(
         @Param('id') id: string,
-        @Request() req: any // Lấy thông tin người dùng từ JWT
+        @Request() req: any
     ): Promise<DeleteUserResponse> {
-        const currentUserId = req.user.id; // ID người dùng hiện tại từ token
+        const currentUserId = req.user.id;
+        const currentUserRole = req.user.roles;
 
         try {
-            await this.userService.removeById(id, currentUserId);
+            await this.userService.removeById(id, currentUserId, currentUserRole);
             return {
                 success: true,
                 message: `User with ID ${id} successfully deleted`,

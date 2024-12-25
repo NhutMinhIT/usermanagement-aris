@@ -72,9 +72,13 @@ export class UserService {
         return newUser.save();
     }
 
-    async removeById(id: string, currentUserId: string): Promise<boolean> {
+    async removeById(id: string, currentUserId: string, currentUserRole: string): Promise<boolean> {
         if (!Types.ObjectId.isValid(id)) {
             throw new BadRequestException('Invalid user ID');
+        }
+
+        if (currentUserRole !== 'admin') {
+            throw new BadRequestException('Only admins are allowed to delete users');
         }
 
         if (id === currentUserId) {
