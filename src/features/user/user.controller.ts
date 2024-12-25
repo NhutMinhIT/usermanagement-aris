@@ -33,7 +33,8 @@ export class UserController {
             await this.userService.removeById(id);
             return {
                 success: true,
-                message: `User with ID ${id} successfully deleted`
+                message: `User with ID ${id} successfully deleted`,
+                statusCode: 200
             };
         } catch (error) {
             throw error;
