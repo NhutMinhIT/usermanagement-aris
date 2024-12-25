@@ -4,6 +4,10 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 
+export interface DeleteUserResponse {
+    success: boolean;
+    message: string;
+}
 @Controller('users')
 export class UserController {
     constructor(private readonly userService: UserService) { }
@@ -26,7 +30,15 @@ export class UserController {
 
     @Delete(':id')
     @UseGuards(JwtAuthGuard, RolesGuard)
-    async remove(@Param('id') id: string) {
-        return this.userService.removeById(id);
+    async remove(@Param('id') id: string): Promise<DeleteUserResponse> {
+        try {
+            await this.userService.removeById(id);
+            return {
+                success: true,
+                message: `User with ID ${id} successfully deleted`
+            };
+        } catch (error) {
+            throw error;
+        }
     }
 }
