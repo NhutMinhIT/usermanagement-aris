@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { PaginatedResponse, UserService } from './user.service';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -28,9 +28,12 @@ export class UserController {
 
     @Delete(':id')
     @UseGuards(JwtAuthGuard, RolesGuard)
-    async remove(@Param('id') id: string): Promise<DeleteUserResponse> {
+    async remove(
+        @Param('id') id: string,
+        @Request() req
+    ): Promise<DeleteUserResponse> {
         try {
-            await this.userService.removeById(id);
+            await this.userService.removeById(id, req.user.id);
             return {
                 success: true,
                 message: `User with ID ${id} successfully deleted`,

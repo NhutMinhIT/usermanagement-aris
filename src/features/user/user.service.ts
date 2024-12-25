@@ -72,13 +72,16 @@ export class UserService {
         return newUser.save();
     }
 
-    async removeById(id: string): Promise<boolean> {
+    async removeById(id: string, currentUserId: string): Promise<boolean> {
         if (!Types.ObjectId.isValid(id)) {
             throw new BadRequestException('Invalid user ID');
         }
 
-        const result = await this.userModel.deleteOne({ _id: new Types.ObjectId(id) });
+        if (id === currentUserId) {
+            throw new BadRequestException('Cannot delete yourself');
+        }
 
+        const result = await this.userModel.deleteOne({ _id: new Types.ObjectId(id) });
         if (result.deletedCount === 0) {
             throw new NotFoundException('User not found');
         }
