@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UploadUserDto } from './dto/update-user.dto';
 
 export interface PaginatedResponse {
     data: User[];
@@ -83,6 +84,43 @@ export class UserService {
         }
         return user;
     }
+
+    async update(id: string, updateUserDto: UploadUserDto): Promise<User> {
+        // Validate ID
+        if (!Types.ObjectId.isValid(id)) {
+            throw new BadRequestException('Invalid user ID');
+        }
+
+        // Find the user
+        const user = await this.userModel.findById(id);
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        // Check for duplicate email or username if they are updated
+        if (updateUserDto.username || updateUserDto.email) {
+            const existingUser = await this.userModel.findOne({
+                $or: [
+                    { username: updateUserDto.username },
+                    { email: updateUserDto.email },
+                ],
+                _id: { $ne: id }, // Exclude the current user
+            });
+
+            if (existingUser) {
+                if (existingUser.username === updateUserDto.username) {
+                    throw new ConflictException('Username already exists');
+                }
+                if (existingUser.email === updateUserDto.email) {
+                    throw new ConflictException('Email already exists');
+                }
+            }
+        }
+        // Update the user
+        Object.assign(user, updateUserDto);
+        return user.save();
+    }
+
 
     async removeById(id: string, currentUserId: string, currentUserRole: string): Promise<boolean> {
         if (!Types.ObjectId.isValid(id)) {

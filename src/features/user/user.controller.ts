@@ -5,6 +5,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { DeleteUserResponse } from 'src/interfaces/remove-user.interface';
+import { UploadUserDto } from './dto/update-user.dto';
 
 
 @Controller('users')
@@ -34,6 +35,16 @@ export class UserController {
     @Roles('admin')
     async create(@Body() createUserDto: CreateUserDto) {
         return this.userService.create(createUserDto);
+    }
+
+    @Post(':id')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin', 'user')
+    async update(
+        @Param('id') id: string,
+        @Body() updateUserDto: UploadUserDto
+    ) {
+        return this.userService.update(id, updateUserDto);
     }
 
     @Delete(':id')
