@@ -30,14 +30,16 @@ export class UserController {
     @UseGuards(JwtAuthGuard, RolesGuard)
     async remove(
         @Param('id') id: string,
-        @Request() req
+        @Request() req: any // Lấy thông tin người dùng từ JWT
     ): Promise<DeleteUserResponse> {
+        const currentUserId = req.user.id; // ID người dùng hiện tại từ token
+
         try {
-            await this.userService.removeById(id, req.user.id);
+            await this.userService.removeById(id, currentUserId);
             return {
                 success: true,
                 message: `User with ID ${id} successfully deleted`,
-                statusCode: 200
+                statusCode: 200,
             };
         } catch (error) {
             throw error;
