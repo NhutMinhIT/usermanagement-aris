@@ -37,7 +37,7 @@ export class UserController {
         @Request() req: any
     ): Promise<DeleteUserResponse> {
         const currentUserId = req.user.id;
-        const currentUserRole = req.user.roles;
+        const currentUserRole = req.user.role;
 
         try {
             await this.userService.removeById(id, currentUserId, currentUserRole);
