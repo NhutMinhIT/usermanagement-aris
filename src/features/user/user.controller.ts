@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { PaginatedResponse, UserService } from './user.service';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -24,4 +24,9 @@ export class UserController {
         return this.userService.create(createUserDto);
     }
 
+    @Delete(':id')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    async remove(@Param('id') id: string) {
+        return this.userService.removeById(id);
+    }
 }

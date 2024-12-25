@@ -1,6 +1,6 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User, UserDocument } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 
@@ -71,4 +71,18 @@ export class UserService {
         const newUser = new this.userModel(createUserDto);
         return newUser.save();
     }
+
+    async removeById(id: string): Promise<boolean> {
+        if (!Types.ObjectId.isValid(id)) {
+            throw new BadRequestException('Invalid user ID');
+        }
+
+        const result = await this.userModel.deleteOne({ _id: new Types.ObjectId(id) });
+
+        if (result.deletedCount === 0) {
+            throw new NotFoundException('User not found');
+        }
+        return true;
+    }
+
 }
